@@ -1,27 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly usersService: UserService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private jwtService: JwtService, private userService: UserService) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
-    const user = await this.usersService.validateUser(email, pass);
-    if (user) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
+  async validateUserByJwt(payload: JwtPayload): Promise<any> {
+    return this.userService.findById(payload.sub);
   }
 
   async login(user: any) {
-    const payload = { username: user.name, sub: user._id };
+    const payload: JwtPayload = { sub: user._id, email: user.email };
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async validateGoogleUser(profile: any): Promise<any> {
+    const user = await this.userService.findOrCreateGoogleUser(profile);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    return user;
   }
 }
