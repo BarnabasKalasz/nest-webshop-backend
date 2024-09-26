@@ -5,10 +5,13 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService, private userService: UserService) {}
+  constructor(
+    private jwtService: JwtService,
+    private userService: UserService,
+  ) {}
 
   async validateUserByJwt(payload: JwtPayload): Promise<any> {
-    return this.userService.findById(payload.sub);
+    return this.userService.getUserById(payload.sub);
   }
 
   async login(user: any) {

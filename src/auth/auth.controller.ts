@@ -9,28 +9,21 @@ import { GoogleAuthGuard } from './guards/google-aith.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // Local Auth
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Req() req) {
     return this.authService.login(req.user);
   }
 
-  // Google Auth
   @UseGuards(GoogleAuthGuard)
   @Get('google')
-  async googleAuth() {}
+  async googleAuth() {
+    // initiates google oauth2 login
+  }
 
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   googleAuthRedirect(@Req() req) {
     return this.authService.login(req.user);
-  }
-
-  // JWT-protected route
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Req() req) {
-    return req.user;
   }
 }
